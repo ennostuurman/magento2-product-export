@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<!--
+/**
+* @copyright Copyright (c) Spaarne Webdesign, Haarlem, The Netherlands
+* @author Enno Stuurman <enno@spaarnewebdesign.nl>
+*/
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="page.title">
+            <action method="setPageTitle">
+                <argument name="title" xsi:type="string">Product Export</argument>
+            </action>
+        </referenceBlock>
+        <referenceContainer name="content">
+            <block class="Magento\Backend\Block\Template"
+                   name="spaarne-orderexport-form"
+                   template="Spaarne_ProductExport::export/form.phtml"
+            />
+        </referenceContainer>
+        <referenceBlock name="spaarne-orderexport-form">
+            <arguments>
+                <argument name="orderExportConfig" xsi:type="object">Spaarne\ProductExport\ViewModel\ExportConfig</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

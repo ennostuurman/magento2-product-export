@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!--
+/**
+* @copyright Copyright (c) Spaarne Webdesign, Haarlem, The Netherlands
+* @author Enno Stuurman <enno@spaarnewebdesign.nl>
+*/
+-->
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+    <menu>
+        <add id="Spaarne_ProductExport::export_page" title="Spaarne Product Export (csv)" translate="title"
+             module="Spaarne_ProductExport" parent="Magento_Backend::system_convert" sortOrder="100"
+             dependsOnModule="Spaarne_ProductExport"
+             action="product_export/export" resource="Spaarne_ProductExport::export_page"/>
+    </menu>
+</config>
+

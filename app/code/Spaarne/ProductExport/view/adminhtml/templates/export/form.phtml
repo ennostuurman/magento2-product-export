@@ -1,0 +1,31 @@
+<?php
+declare(strict_types=1);
+/**
+ * @copyright Copyright (c) Spaarne Webdesign, Haarlem, The Netherlands
+ * @author Enno Stuurman <enno@spaarnewebdesign.nl>
+ */
+
+/** @var Magento\Framework\View\Element\Template $this */
+/** @var  Spaarne\ProductExport\ViewModel\ExportConfig $viewModel */
+$viewModel = $block->getData('orderExportConfig');
+$isAuthorized = $viewModel->isAuthorized();
+?>
+<?php if ($isAuthorized): ?>
+    <div class="product-export">
+        <p><?= __('Export enabled simple products to CSV containing SKU, name and salable stock quantity.') ?><br><br></p>
+        <button id="product-export-submit" class="product-export__submit" type="button">
+            <?= __('Export Products to CSV') ?>
+        </button>
+    </div>
+<?php else: ?>
+    <p><?= __('Sorry, you\'re not authorized to export orders') ?></p>
+<?php endif; ?>
+<script type="text/x-magento-init">
+    {
+        "*" : {
+            "Spaarne_ProductExport/js/product-export": {
+                "export_url": "<?= $this->getUrl('product_export/export/run'); ?>"
+            }
+        }
+    }
+</script>

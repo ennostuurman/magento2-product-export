@@ -121,7 +121,7 @@ class Run extends AdminAction implements HttpPostActionInterface
             $stream->writeCsv($header);
 
             $collection = $this->productCollectionFactory->create();
-            $collection->addAttributeToSelect(['sku','name']);
+            $collection->addAttributeToSelect(['sku','name', 'export_allowed']);
             $collection->addFieldToFilter('status', [
                 'eq' => Product\Attribute\Source\Status::STATUS_ENABLED
             ]);
@@ -131,12 +131,14 @@ class Run extends AdminAction implements HttpPostActionInterface
 
             /** @var Product $product */
             foreach ($collection as $product) {
-                $sku = $product->getSku();
-                $data = [];
-                $data[] = $sku;
-                $data[] = $product->getName();
-                $data[] = $this->getSalableQty($sku);
-                $stream->writeCsv($data);
+                if ($this->isExportAllowed($product)) {
+                    $sku = $product->getSku();
+                    $data = [];
+                    $data[] = $sku;
+                    $data[] = $product->getName();
+                    $data[] = $this->getSalableQty($sku);
+                    $stream->writeCsv($data);
+                }
             }
 
             $stream->unlock();
@@ -180,5 +182,23 @@ class Run extends AdminAction implements HttpPostActionInterface
             $sku,
             $this->defaultStockProviderInterface->getId()
         );
+    }
+
+    /**
+     * Check if product is allowed for export
+     *
+     * @param Product $product
+     * @return bool
+     */
+    private function isExportAllowed(Product $product): bool
+    {
+        $exportAllowed = $product->getData('export_allowed');
+
+        // default value is allowed so check for a 'not allowed' */
+        if (isset($exportAllowed) && $exportAllowed === '0') {
+            return false;
+        }
+
+        return true;
     }
 }

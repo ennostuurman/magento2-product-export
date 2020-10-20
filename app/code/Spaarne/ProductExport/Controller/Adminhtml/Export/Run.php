@@ -21,6 +21,8 @@ use Magento\Framework\View\LayoutFactory;
 use Magento\InventoryCatalogApi\Api\DefaultStockProviderInterface;
 use Magento\InventorySalesApi\Api\GetProductSalableQtyInterface;
 use Psr\Log\LoggerInterface;
+use Spaarne\ProductExport\Api\Data\ProductExportInterfaceFactory;
+use Spaarne\ProductExport\Model\ResourceModel\ProductExport as ProductExportResource;
 
 class Run extends AdminAction implements HttpPostActionInterface
 {
@@ -58,11 +60,21 @@ class Run extends AdminAction implements HttpPostActionInterface
      * @var JsonFactory
      */
     private JsonFactory $resultJsonFactory;
+
     /**
      * @var LayoutFactory
      */
     private LayoutFactory $layoutFactory;
 
+    /**
+     * @var ProductExportInterfaceFactory
+     */
+    private ProductExportInterfaceFactory $productExportInterfaceFactory;
+
+    /**
+     * @var ProductExportResource
+     */
+    private ProductExportResource $productExportResource;
 
     /**
      * CreateProductCsv constructor.
@@ -74,6 +86,8 @@ class Run extends AdminAction implements HttpPostActionInterface
      * @param LoggerInterface $logger
      * @param JsonFactory $resultJsonFactory
      * @param LayoutFactory $layoutFactory
+     * @param ProductExportInterfaceFactory $productExportInterfaceFactory
+     * @param ProductExportResource $productExportResource
      * @throws FileSystemException
      */
     public function __construct(
@@ -84,7 +98,9 @@ class Run extends AdminAction implements HttpPostActionInterface
         DefaultStockProviderInterface $defaultStockProviderInterface,
         LoggerInterface $logger,
         JsonFactory $resultJsonFactory,
-        LayoutFactory $layoutFactory
+        LayoutFactory $layoutFactory,
+        ProductExportInterfaceFactory $productExportInterfaceFactory,
+        ProductExportResource $productExportResource
 
     ) {
         $this->filesystem = $filesystem;
@@ -95,6 +111,8 @@ class Run extends AdminAction implements HttpPostActionInterface
         $this->logger = $logger;
         $this->resultJsonFactory = $resultJsonFactory;
         $this->layoutFactory = $layoutFactory;
+        $this->productExportInterfaceFactory = $productExportInterfaceFactory;
+        $this->productExportResource = $productExportResource;
         parent::__construct($context);
     }
 
@@ -131,6 +149,9 @@ class Run extends AdminAction implements HttpPostActionInterface
 
             /** @var Product $product */
             foreach ($collection as $product) {
+                /** @var \Spaarne\ProductExport\Model\ProductExport $productExportMetaData */
+                $productExportMetaData = $this->productExportInterfaceFactory->create();
+
                 if ($this->isExportAllowed($product)) {
                     $sku = $product->getSku();
                     $data = [];
@@ -138,7 +159,13 @@ class Run extends AdminAction implements HttpPostActionInterface
                     $data[] = $product->getName();
                     $data[] = $this->getSalableQty($sku);
                     $stream->writeCsv($data);
+
+                    $productExportMetaData->setProductId($product->getEntityId());
+                    $productExportMetaData->setExportedAt((new \DateTime())->setTimezone(new \DateTimeZone('UTC')));
+                } else {
+                    $productExportMetaData->setProductId($product->getEntityId());
                 }
+                $this->productExportResource->save($productExportMetaData);
             }
 
             $stream->unlock();

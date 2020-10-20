@@ -12,10 +12,25 @@
 1. Creating a separate admin page (routing and AJAX controller)
 2. Creating an admin menu
 3. Admin user rights (ACL)
-4. Returning user success / error messages from an AJAX controller 
-5. Magento file system (exporting data to CSV)es
+4. Returning user success / error messages from an AJAX endpoint 
+5. Magento file system (exporting data to CSV)
 6. Add custom product attributes (data patches)
-7. Database management (DB schema, create table, update table)
+7. Database management (DB schema, create and update tables, getters and setters, the Model-ResourceModel-Collection-triad)
+
+**Additional take-aways**
+1. This assignment shouldn't be just another 101. Coding isn't only about the how-to. Try to understand what Magento does with the code. You're adding code that executes operations in the system. Try to understand the implications of what you're doing. It will make Magento less of a black box and will make you more
+creative with coding.You could use xdebug to analyse the request chain, or explore the eav tables when you first run the setup:upgrade to create the export_allowed attribute (hint: look at eav_attribute, patch_list). Change the export_allowed attribute for a product. See if the attribute value appears in the database for the specific
+product (entity_id). Hint: look at the catalog_product_entity_* tables (reindex first to make sure the change is there).
+
+2. Always test your code, not just blindly deliver. E2E testing is the ultimate test. This module doesn't contain tests, but simply running the export after a change will help you to filter out issues.
+
+3. Always keep performance in mind. Never just deliver your code without having tested performance. Addressing performance bottlenecks in an early stage is vital for the health of the merchant, the customer, the Magento installation and don't forget yourself ;-).  
+It's important to realize how your functionality performs. For example the product export in this is module takes about 13 seconds on a Magento 2.4 install with sample data.
+That's 1891 simple SKU's. So the export runs on average 145 products per second. After adding in the save export meta data to log table performance is slowed down to
+25 seconds or 75 products per second. Writing code and knowing how is one, but trying to understand real-life implications of the functionality you're delivering is another thing.
+Now ask yourself if that's fast or slow and what would be the implication when running this against a catalog of a > 100.000 SKU's ;-) .
+So was it a good idea to write export meta data to the DB at all? Back to the drawing board... 
+
 
 
 **Prerequisites**
@@ -26,7 +41,20 @@
 **Disclaimer**
 
 This module has been made for personal learning purposes and is for educational purposes only. 
-So not suited for commercial re(use) whatsoever.
+So not suited for commercial re(use) whatsoever. This module for instance uses ES6 syntax which you might want
+to compile with Babel when you want to support older browsers. In addition the export is executed in the
+browser which at a speed of approximately 145 products per second might not be a problem with a small catalogue.
+In real-life situations you'd probably add the product export to the message queue and run the task with cron 
+like the default Magento export does (see also my remark about performance in the above take-aways section).
+
+
+**Special thanks**
+1. I would like to thank "Mr autocomplete is the best invention since sliced bread" @JosephMaxwell for being an inspiration. His OrderExport module that accompanies the Magento Developer Certification study guide gave me the idea to create this module.
+I'd recommend the SwiftOtter Certification Resources for anyone who wants to learn more about Magento [https://swiftotter.com/certifications#/][] .
+
+2. I would like to thank "Mr M.acadamy snippets" @MarkShust for providing the one command install Docker environment including the Magento 2.4 sample data install on which I built this module.
+And off course for the useful Magento snippets he shares. Checkout his Docker repo and many more [https://github.com/markshust/docker-magento][] .
+
 
 **Copyright**
 
@@ -36,3 +64,9 @@ So not suited for commercial re(use) whatsoever.
 
 Enno Stuurman
 
+
+**Links**
+
+[]: https://swiftotter.com/certifications#/
+
+[]: https://github.com/markshust/docker-magento

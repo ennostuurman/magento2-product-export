@@ -15,6 +15,9 @@
         <constraint xsi:type="primary" referenceId="PRIMARY">
             <column name="id"/>
         </constraint>
+        <constraint xsi:type="unique" referenceId="PRODUCT_EXPORT_PRODUCT_ID">
+            <column name="product_id"/>
+        </constraint>
         <constraint xsi:type="foreign" referenceId="SPAARNE_PRODUCT_EXPORT_PRODUCT_ID_CATALOG_PRODUCT_ENTITY_ENTITY_ID"
                     table="spaarne_product_export"
                     column="product_id"

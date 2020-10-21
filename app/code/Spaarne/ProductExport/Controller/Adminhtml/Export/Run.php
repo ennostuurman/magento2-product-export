@@ -77,6 +77,11 @@ class Run extends AdminAction implements HttpPostActionInterface
     private ProductExportResource $productExportResource;
 
     /**
+     * @var ProductExportResource\SaveProductExport
+     */
+    private ProductExportResource\SaveProductExport $saveProductExport;
+
+    /**
      * CreateProductCsv constructor.
      * @param ActionContext $context
      * @param Filesystem $filesystem
@@ -88,6 +93,7 @@ class Run extends AdminAction implements HttpPostActionInterface
      * @param LayoutFactory $layoutFactory
      * @param ProductExportInterfaceFactory $productExportInterfaceFactory
      * @param ProductExportResource $productExportResource
+     * @param ProductExportResource\SaveProductExport $saveProductExport
      * @throws FileSystemException
      */
     public function __construct(
@@ -100,8 +106,8 @@ class Run extends AdminAction implements HttpPostActionInterface
         JsonFactory $resultJsonFactory,
         LayoutFactory $layoutFactory,
         ProductExportInterfaceFactory $productExportInterfaceFactory,
-        ProductExportResource $productExportResource
-
+        ProductExportResource $productExportResource,
+        ProductExportResource\SaveProductExport $saveProductExport
     ) {
         $this->filesystem = $filesystem;
         $this->directory = $filesystem->getDirectoryWrite(DirectoryList::VAR_DIR);
@@ -113,6 +119,7 @@ class Run extends AdminAction implements HttpPostActionInterface
         $this->layoutFactory = $layoutFactory;
         $this->productExportInterfaceFactory = $productExportInterfaceFactory;
         $this->productExportResource = $productExportResource;
+        $this->saveProductExport = $saveProductExport;
         parent::__construct($context);
     }
 
@@ -150,7 +157,8 @@ class Run extends AdminAction implements HttpPostActionInterface
             /** @var Product $product */
             foreach ($collection as $product) {
                 /** @var \Spaarne\ProductExport\Model\ProductExport $productExportMetaData */
-                $productExportMetaData = $this->productExportInterfaceFactory->create();
+                // uncomment this if you want an insert for every product every time the export is run
+                // $productExportMetaData = $this->productExportInterfaceFactory->create();
 
                 if ($this->isExportAllowed($product)) {
                     $sku = $product->getSku();
@@ -160,12 +168,22 @@ class Run extends AdminAction implements HttpPostActionInterface
                     $data[] = $this->getSalableQty($sku);
                     $stream->writeCsv($data);
 
-                    $productExportMetaData->setProductId($product->getEntityId());
-                    $productExportMetaData->setExportedAt((new \DateTime())->setTimezone(new \DateTimeZone('UTC')));
+                    // uncomment the next lines if you want an insert for every product every time the export is run
+                    // $productExportMetaData->setProductId($product->getEntityId());
+                    // $productExportMetaData->setExportedAt((new \DateTime())->setTimezone(new \DateTimeZone('UTC')));
+                    $productId = (int)$product->getEntityId();
+                    $exportedAt = (new \DateTime())->setTimezone(new \DateTimeZone('UTC'))->format('Y-m-d H:i:s');
                 } else {
-                    $productExportMetaData->setProductId($product->getEntityId());
+                    // uncomment this if you want a insert for every product every time the export is run
+                    // $productExportMetaData->setProductId($product->getEntityId());
+                    $productId = (int)$product->getEntityId();
+                    $exportedAt = null;
                 }
-                $this->productExportResource->save($productExportMetaData);
+                // uncomment this if you want an insert for every product every time the export is run
+                // $this->productExportResource->save($productExportMetaData);
+
+                // comment this out if you want an insert for every product every time the export is run
+                $this->saveProductExport->execute($productId, $exportedAt);
             }
 
             $stream->unlock();

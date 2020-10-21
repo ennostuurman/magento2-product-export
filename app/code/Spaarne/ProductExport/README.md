@@ -10,7 +10,7 @@ An educational Magento 2 module to export products to a csv file.
 4. Create a product attribute which allows the admin to configure whether a product should be exported yes or no. Make sure to only export the products that are allowed for export. 
 5. Create a new table which saves the following product export data to the DB, product entity and exported_at datetime (empty if not exported). Think about if you want to just insert these export metadata every time you 
 do an export or if you just want to update the exported_at date in case a product has been exported before and is present in the table. Latter will of course keep the table within reasonable size creating as many records as you have simple products.
-It all depends on your use case and required functionality, but it's to give this a second thought.   
+It all depends on your use case and required functionality, but it's worth to give this a second thought.   
 
 ## This lesson focuses on learning the following topics
 

@@ -14,7 +14,9 @@ For further reading see https://github.com/ennostuurman/spaarne-product-export/b
 
 ![](https://github.com/ennostuurman/spaarne-product-export/blob/master/spaarne-product-export-admin-export-allowed-config.png?raw=true)
 
+## Product Export csv file
 
+![](https://github.com/ennostuurman/spaarne-product-export/blob/master/spaarne-product-export-csv-output.png?raw=true)
 
 ### Product Export log table
 
